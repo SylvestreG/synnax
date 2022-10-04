@@ -5,11 +5,13 @@ use core::str;
 use log::info;
 use std::collections::HashMap;
 
+#[derive(Clone)]
 pub enum ItemOrMap {
     Item { value: String },
     Map { map: HashMap<String, String> },
 }
 
+#[derive(Clone)]
 pub struct Contract {
     pub contract: WasmContractResponse,
     pub funds: Vec<Coin>,
