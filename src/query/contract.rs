@@ -3,19 +3,19 @@ use crate::cosmos::wasm::{StateEntry, WasmContractResponse};
 use crate::cosmos::Cosmos;
 use core::str;
 use log::info;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Clone)]
 pub enum ItemOrMap {
     Item { value: String },
-    Map { map: HashMap<String, String> },
+    Map { map: BTreeMap<String, String> },
 }
 
 #[derive(Clone)]
 pub struct Contract {
     pub contract: WasmContractResponse,
     pub funds: Vec<Coin>,
-    pub state: HashMap<String, ItemOrMap>,
+    pub state: BTreeMap<String, ItemOrMap>,
 }
 
 impl Contract {
@@ -81,7 +81,7 @@ impl Contract {
 
         info!("found {} elems", all_data.len());
 
-        let mut state = HashMap::new();
+        let mut state = BTreeMap::new();
 
         for data in all_data {
             log::trace!("decoding {} => {}", data.key, data.value);
@@ -93,7 +93,7 @@ impl Contract {
 
             if let Ok(Some((key, index))) = res {
                 let entry = state.entry(key.clone()).or_insert(ItemOrMap::Map {
-                    map: HashMap::new(),
+                    map: BTreeMap::new(),
                 });
                 match entry {
                     ItemOrMap::Map { map } => {
