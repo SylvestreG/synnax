@@ -20,3 +20,10 @@ pub struct Pagination {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub total: u64,
 }
+
+#[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
+pub struct Error {
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub code: u64,
+    pub message: String,
+}

@@ -1,3 +1,5 @@
+use crate::cosmos::types::Error;
+use anyhow::bail;
 use reqwest::blocking::Client;
 use std::time::Duration;
 
@@ -39,6 +41,15 @@ impl Lcd {
 
         let data = &request.text()?;
         log::trace!("-> payload\n{}", data);
-        Ok(serde_json::from_str::<T>(data)?)
+
+        let output = serde_json::from_str::<T>(data);
+
+        if output.is_err() {
+            log::warn!("{:#?}", output.err());
+            let err: Error = serde_json::from_str(data)?;
+            bail!(err.message);
+        }
+
+        Ok(output.unwrap())
     }
 }

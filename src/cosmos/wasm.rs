@@ -63,9 +63,9 @@ pub struct WasmContractsByCodeResponse {
 
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct AccessConfig {
-    permission: String,
-    address: String,
-    addresses: Vec<String>,
+    pub permission: String,
+    pub address: String,
+    pub addresses: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
@@ -86,6 +86,7 @@ pub struct WasmCodeResponse {
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]
 pub struct WasmCodesResponse {
     pub code_infos: Vec<CodeInfoResponse>,
+    pub pagination: Pagination,
 }
 
 #[derive(Deserialize, Clone, Debug, Eq, PartialEq)]

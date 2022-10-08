@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod wasm_tests {
+    use crate::cosmos::wasm::AccessConfig;
     use crate::cosmos::Cosmos;
     use crate::lcd::Lcd;
     use serde::{Deserialize, Serialize};
@@ -29,6 +30,23 @@ mod wasm_tests {
         );
         assert_eq!(contrat.contract_info.created, None);
         assert_eq!(contrat.contract_info.ibc_port_id, "");
+    }
+
+    #[test]
+    fn bad_contract() {
+        let lcd = Lcd::new("https://api-mainnet.blockchain.ki".to_string()).unwrap();
+        let cosmos = Cosmos::new(&lcd);
+
+        let contrat = cosmos
+            .wasm
+            .contract("ki1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59".to_owned());
+        assert!(contrat.is_err());
+
+        assert!(contrat
+            .err()
+            .unwrap()
+            .to_string()
+            .starts_with("decoding bech32"));
     }
 
     #[test]
@@ -93,18 +111,10 @@ mod wasm_tests {
         let cosmos = Cosmos::new(&lcd);
 
         let contracts = cosmos.wasm.contracts_by_code_id(35).unwrap();
-        assert!(contracts.contracts.len() >= 3);
+        assert!(!contracts.contracts.is_empty());
         assert_eq!(
             contracts.contracts[0],
             "ki1ghyk8wtwnhu3pjtercnxr9ks9zmqz9j7y0d6xf9kwee4ctc4qz7qy9yym2"
-        );
-        assert_eq!(
-            contracts.contracts[1],
-            "ki1enae36xr05z5rtfjjyw737jr5x4ej65asnw8le4wumsl45m4m0lqs6q0tx"
-        );
-        assert_eq!(
-            contracts.contracts[2],
-            "ki1d5mktn4908j4ghkmvqyphkvnnes2vpn7ul3ws68kdvwj7w07p0xql9ypt4"
         );
     }
 
@@ -123,11 +133,19 @@ mod wasm_tests {
             code.code_info.data_hash,
             "A4D9CF6377F05A5BBDB7E653500CA415EFBA48EFFABFA2E8D23CCF344D932A87"
         );
-        assert_eq!(code.code_info.instantiate_permission, None);
+        assert_eq!(
+            code.code_info.instantiate_permission,
+            Some(AccessConfig {
+                permission: "Everybody".to_string(),
+                address: "".to_string(),
+                addresses: None
+            })
+        );
     }
 
     #[test]
     fn codes() {
+        env_logger::init();
         let lcd = Lcd::new("https://api-mainnet.blockchain.ki".to_string()).unwrap();
         let cosmos = Cosmos::new(&lcd);
 
@@ -138,7 +156,14 @@ mod wasm_tests {
             codes.code_infos[22].data_hash,
             "4A1F81CA3313B6F0D13F80DB335FEEF4EFBE87141495DF360DBD2C71A18BC595"
         );
-        assert_eq!(codes.code_infos[22].instantiate_permission, None);
+        assert_eq!(
+            codes.code_infos[22].instantiate_permission,
+            Some(AccessConfig {
+                permission: "Everybody".to_string(),
+                address: "".to_string(),
+                addresses: None
+            })
+        );
         assert_eq!(
             codes.code_infos[22].creator,
             "ki12u4jtcczpg2m3nt50muh3srte7zed77qsfyng4"
