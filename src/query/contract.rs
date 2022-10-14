@@ -28,6 +28,8 @@ impl Contract {
                     4usize => i128::from_str_radix(&key.as_str()[0..4], 16),
                     8usize => i128::from_str_radix(&key.as_str()[0..8], 16),
                     16usize => i128::from_str_radix(&key.as_str()[0..16], 16),
+                    32usize => i128::from_str_radix(&key.as_str()[0..32], 16),
+                    64usize => i128::from_str_radix(&key.as_str()[0..32], 16),
                     _ => i128::from_str_radix(key.as_str(), 16),
                 };
 
