@@ -24,11 +24,11 @@ impl Contract {
             let possible_int = vec![2usize, 4usize, 8usize, 16usize, 32usize];
             if possible_int.contains(&key.len()) {
                 let num = match key.len() {
-                    2usize => u128::from_str_radix(&key.as_str()[0..2], 16),
-                    4usize => u128::from_str_radix(&key.as_str()[0..4], 16),
-                    8usize => u128::from_str_radix(&key.as_str()[0..8], 16),
-                    16usize => u128::from_str_radix(&key.as_str()[0..16], 16),
-                    _ => u128::from_str_radix(key.as_str(), 16),
+                    2usize => i128::from_str_radix(&key.as_str()[0..2], 16),
+                    4usize => i128::from_str_radix(&key.as_str()[0..4], 16),
+                    8usize => i128::from_str_radix(&key.as_str()[0..8], 16),
+                    16usize => i128::from_str_radix(&key.as_str()[0..16], 16),
+                    _ => i128::from_str_radix(key.as_str(), 16),
                 };
 
                 if let Ok(valid_number) = num {
