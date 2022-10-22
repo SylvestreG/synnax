@@ -68,6 +68,18 @@ impl Contract {
         Ok(None)
     }
 
+    fn pretty_print_json(data: String) -> String {
+        let json: Result<serde_json::Value, _> = serde_json::from_str(data.as_str());
+        if let Ok(js) = json {
+            let pretty_json = serde_json::to_string_pretty(&js);
+            if let Ok(pretty) = pretty_json {
+                return pretty;
+            }
+        }
+
+        data
+    }
+
     pub fn new(cosmos: Cosmos, address: String) -> Result<Self, anyhow::Error> {
         let mut all_data: Vec<StateEntry> = vec![];
         let contract = cosmos.wasm.contract(address.clone())?;
@@ -91,6 +103,7 @@ impl Contract {
 
             let base64_data = base64::decode(data.value.as_str()).expect("INVALID_VALUE");
             let decoded_value = str::from_utf8(&base64_data).expect("INVALID_VALUE");
+            let decoded_value = Contract::pretty_print_json(decoded_value.to_string());
             let decoded_key;
 
             if let Ok(Some((key, index))) = res {
