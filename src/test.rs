@@ -1,6 +1,7 @@
 mod auth;
 mod authz;
 mod bank;
+mod contract;
 mod distribution;
 mod evidence;
 mod feegrant;

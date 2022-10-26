@@ -19,28 +19,98 @@ pub struct Contract {
 }
 
 impl Contract {
-    fn get_string_or_int(key: String) -> Result<String, anyhow::Error> {
-        if &key.as_str()[0..2] == "00" {
-            let possible_int = vec![2usize, 4usize, 8usize, 16usize, 32usize];
-            if possible_int.contains(&key.len()) {
-                let num = match key.len() {
-                    2usize => i128::from_str_radix(&key.as_str()[0..2], 16),
-                    4usize => i128::from_str_radix(&key.as_str()[0..4], 16),
-                    8usize => i128::from_str_radix(&key.as_str()[0..8], 16),
-                    16usize => i128::from_str_radix(&key.as_str()[0..16], 16),
-                    32usize => i128::from_str_radix(&key.as_str()[0..32], 16),
-                    64usize => i128::from_str_radix(&key.as_str()[0..32], 16),
-                    _ => i128::from_str_radix(key.as_str(), 16),
-                };
+    fn decodei8(val: String) -> String {
+        let mut val = u8::from_str_radix(val.as_str(), 16).unwrap();
+        let mut val_i8: i8;
 
-                if let Ok(valid_number) = num {
-                    return Ok(valid_number.to_string());
-                }
-            }
+        let is_postive = val & 0x80 == 0x80;
+        val &= 0x7f;
+        if !is_postive {
+            val = 0x80 - val;
+            val_i8 = val as i8;
+            val_i8 = -val_i8;
+        } else {
+            val_i8 = val as i8;
         }
 
+        val_i8.to_string()
+    }
+    fn decodei16(val: String) -> String {
+        let mut val = u16::from_str_radix(val.as_str(), 16).unwrap();
+        let mut val_i16: i16;
+
+        let is_postive = val & 0x8000 == 0x8000;
+        val &= 0x7fff;
+        if !is_postive {
+            val = 0x8000 - val;
+            val_i16 = val as i16;
+            val_i16 = -val_i16;
+        } else {
+            val_i16 = val as i16;
+        }
+
+        val_i16.to_string()
+    }
+    fn decodei32(val: String) -> String {
+        let mut val = u32::from_str_radix(val.as_str(), 16).unwrap();
+        let mut val_i32: i32;
+
+        let is_postive = val & 0x80000000 == 0x80000000;
+        val &= 0x7fffffff;
+        if !is_postive {
+            val = 0x80000000 - val;
+            val_i32 = val as i32;
+            val_i32 = -val_i32;
+        } else {
+            val_i32 = val as i32;
+        }
+
+        val_i32.to_string()
+    }
+
+    fn decodei64(val: String) -> String {
+        let mut val = u64::from_str_radix(val.as_str(), 16).unwrap();
+        let mut val_i64: i64;
+
+        let is_postive = val & 0x8000000000000000 == 0x8000000000000000;
+        val &= 0x7fffffffffffffff;
+        if !is_postive {
+            val = 0x8000000000000000 - val;
+            val_i64 = val as i64;
+            val_i64 = -val_i64;
+        } else {
+            val_i64 = val as i64;
+        }
+
+        val_i64.to_string()
+    }
+
+    fn get_string_or_int(key: String) -> Result<String, anyhow::Error> {
         let data = hex::decode(key.as_str()).expect("Decoding failed");
-        Ok(str::from_utf8(&data).expect("DECODE FAILURE").to_string())
+        if let Ok(ret) = str::from_utf8(&data) {
+            return Ok(ret.to_string());
+        }
+
+        let res = if &key.as_str()[0..2] == "00" {
+            match key.len() {
+                2 => u8::from_str_radix(key.as_str(), 16).unwrap().to_string(),
+                4 => u16::from_str_radix(key.as_str(), 16).unwrap().to_string(),
+                8 => u32::from_str_radix(key.as_str(), 16).unwrap().to_string(),
+                16 => u64::from_str_radix(key.as_str(), 16).unwrap().to_string(),
+                32 => u128::from_str_radix(key.as_str(), 16).unwrap().to_string(),
+                _ => "unknown".to_string(),
+            }
+        } else {
+            match key.len() {
+                2 => Contract::decodei8(key),
+                4 => Contract::decodei16(key),
+                8 => Contract::decodei32(key),
+                16 => Contract::decodei64(key),
+                _ => "unknown".to_string(),
+            }
+        };
+
+        Ok(res)
     }
 
     fn get_map_key_index(key: String) -> Result<Option<(String, String)>, anyhow::Error> {
