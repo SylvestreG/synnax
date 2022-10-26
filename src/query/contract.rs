@@ -86,28 +86,29 @@ impl Contract {
     }
 
     fn get_string_or_int(key: String) -> Result<String, anyhow::Error> {
-        let data = hex::decode(key.as_str()).expect("Decoding failed");
-        if let Ok(ret) = str::from_utf8(&data) {
-            return Ok(ret.to_string());
-        }
-
-        let res = if &key.as_str()[0..2] == "00" {
-            match key.len() {
+        if &key.as_str()[0..2] == "00" {
+            let res = match key.len() {
                 2 => u8::from_str_radix(key.as_str(), 16).unwrap().to_string(),
                 4 => u16::from_str_radix(key.as_str(), 16).unwrap().to_string(),
                 8 => u32::from_str_radix(key.as_str(), 16).unwrap().to_string(),
                 16 => u64::from_str_radix(key.as_str(), 16).unwrap().to_string(),
                 32 => u128::from_str_radix(key.as_str(), 16).unwrap().to_string(),
                 _ => "unknown".to_string(),
-            }
-        } else {
-            match key.len() {
-                2 => Contract::decodei8(key),
-                4 => Contract::decodei16(key),
-                8 => Contract::decodei32(key),
-                16 => Contract::decodei64(key),
-                _ => "unknown".to_string(),
-            }
+            };
+            return Ok(res);
+        }
+
+        let data = hex::decode(key.as_str()).expect("Decoding failed");
+        if let Ok(ret) = str::from_utf8(&data) {
+            return Ok(ret.to_string());
+        }
+
+        let res = match key.len() {
+            2 => Contract::decodei8(key),
+            4 => Contract::decodei16(key),
+            8 => Contract::decodei32(key),
+            16 => Contract::decodei64(key),
+            _ => "unknown".to_string(),
         };
 
         Ok(res)
